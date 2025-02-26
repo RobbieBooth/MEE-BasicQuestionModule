@@ -21,7 +21,7 @@ export function MultipleChoiceQuestion({question, studentAnswer, questionSubmitt
                     return <div className="flex items-center space-x-2" key={index}>
                         <input
                             type="radio"
-                            name={questionID}//TODO if a question has the same name this could cause issues
+                            name={questionID}
                             value={option.option}
                             checked={selectedOption}
                             onChange={(e) => setStudentAnswer(e.target.value)}
