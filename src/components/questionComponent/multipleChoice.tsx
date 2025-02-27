@@ -35,9 +35,9 @@ export function MultipleChoiceQuestion({question, studentAnswer, questionSubmitt
                         <Label htmlFor={option.option}>{option.option}</Label>
                         {(questionSubmitted && selectedOption) && (
                             option.answer ?
-                                <Check className={`text-${correctColour}`}/>
+                                <Check className={`text-green-500`}/>
                                 :
-                                <X className={`text-${incorrectColour}`}/>
+                                <X className={`text-red-500`}/>
                         )}
                     </div>
                 })}

@@ -84,9 +84,9 @@ export function FillInTheBlankQuestion({question, studentAnswer, questionSubmitt
                 {questionSubmitted && (() => {
                     const correctOption = question.options.find(value => value.locationIndex === option.locationIndex)?.option;
                     return correctOption === option.option ? (
-                            <Check className={`text-${correctColour}`}/>
+                            <Check className={`text-green-500`}/>
                     ) : (
-                        <X className={`text-${incorrectColour}`}/>
+                        <X className={`text-red-500`}/>
                     );
                 })()}
             </div>
