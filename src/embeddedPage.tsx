@@ -15,24 +15,71 @@ const EmbeddedPage: React.FC = () => {
     const [settings, setSettings] = useState<Settings>();
     const [error, setError] = useState<Error | null>(null);
 
+    // Ref to store the latest state values
+    const stateRef = useRef({
+        studentResponse,
+        additionalData,
+        questionID,
+    });
+
+    // Update ref whenever state changes
+    useEffect(() => {
+        stateRef.current = {
+            studentResponse,
+            additionalData,
+            questionID,
+        };
+    }, [studentResponse, additionalData, questionID]);
+
     const handleMessage = (event: MessageEvent) => {
-        try{
+        try {
             if (event.data?.type === "REQUEST_DATA") {
-                // Send data back to the parent
+                // Use the latest state from ref
+                const studentsAnswersMap =  stateRef.current.studentResponse.reduce((acc:Record<string, any>, value) => {
+                    acc[value.question.id] = value.studentAnswer;
+                    return acc;
+                }, {});
+
+
                 window.parent.postMessage(
-                    { type: "FROM_EMBEDDED_PAGE", payload: JSON.stringify({questionID:questionID, additionalData: {...additionalData, studentAnswers:studentResponse}}) },
+                    {
+                        type: "FROM_EMBEDDED_PAGE",
+                        payload: JSON.stringify({
+                            questionID: stateRef.current.questionID,
+                            additionalData: {
+                                ...stateRef.current.additionalData,
+                                studentAnswers: studentsAnswersMap
+                            }
+                        })
+                    },
                     "*"
                 );
-            }else if (event.data?.type === "SEND_DATA") {
-                //Process data from parent
+            } else if (event.data?.type === "SEND_DATA") {
                 parseMessage(event.data.payload);
             }
-        }catch (e) {
-            // @ts-ignore
-            setError(e);
+        } catch (e) {
+            setError(e as Error);
         }
-
     };
+
+    // const handleMessage = (event: MessageEvent) => {
+    //     try{
+    //         if (event.data?.type === "REQUEST_DATA") {
+    //             // Send data back to the parent
+    //             window.parent.postMessage(
+    //                 { type: "FROM_EMBEDDED_PAGE", payload: JSON.stringify({questionID:questionID, additionalData: {...additionalData, studentAnswers:studentResponse}}) },
+    //                 "*"
+    //             );
+    //         }else if (event.data?.type === "SEND_DATA") {
+    //             //Process data from parent
+    //             parseMessage(event.data.payload);
+    //         }
+    //     }catch (e) {
+    //         // @ts-ignore
+    //         setError(e);
+    //     }
+    //
+    // };
 
     const parseSetting = (parsedData: any) => {
         // let parsedData: any;
@@ -108,6 +155,10 @@ const EmbeddedPage: React.FC = () => {
             throw new Error("Invalid JSON: Unable to parse.");//throw error when message received from server is unable to be parsed
         }
 
+        if (typeof parsedData.questionID !== "string") {
+            throw new Error("Invalid or missing 'questionID'. Expected an string.");
+        }
+
         if (typeof parsedData.settings !== "object") {
             throw new Error("Invalid or missing 'settings'. Expected an object.");
         }
@@ -116,6 +167,7 @@ const EmbeddedPage: React.FC = () => {
             throw new Error("Invalid or missing 'additionalData'. Expected an object.");
         }
 
+        const questionID = parsedData.questionID as string;
         const settings = parseSetting(parsedData.settings);
         const additionalData = parseAdditionalData(parsedData.additionalData);
 
@@ -145,6 +197,7 @@ const EmbeddedPage: React.FC = () => {
             };
             return response;
         });
+        setQuestionID(questionID);
         setSettings(settings);
         setAdditionalData(additionalData);
         setStudentResponse(studentResponseArray);
@@ -165,7 +218,7 @@ const EmbeddedPage: React.FC = () => {
         return <div><h1>An error occurred loading this module: {error.message}</h1></div>
     }
 
-    return <div className="flex items-center justify-center min-h-screen py-10 w-screen">
+    return <div className="flex items-center justify-center min-h-screen py-10 w-full">
         <div className="space-y-8 max-w-3xl w-full">
             <QuestionPage questions={studentResponse}
                           submitted={additionalData == undefined ? false : additionalData.isSubmitted}/>
