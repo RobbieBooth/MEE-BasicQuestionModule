@@ -128,6 +128,7 @@ const EmbeddedPage: React.FC = () => {
         }
 
         return {
+            ...parsedData,
             isSubmitted: parsedData.isSubmitted,
             studentAnswers: parsedData.studentAnswers ?? {}
         };
