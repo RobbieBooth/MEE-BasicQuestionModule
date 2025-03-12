@@ -54,7 +54,7 @@ export function FillInTheBlankQuestion({question, studentAnswer, questionSubmitt
     studentAnswer.forEach((option, i) => {
         output.push(question.questionString.slice(lastIndex, option.locationIndex)); // Add text before input
         output.push(
-            <div className="flex">
+            <div className="inline">
             <Select key={key+i} value={option.option} onValueChange={(value) => handleSelectChange(option.locationIndex, value)} disabled={questionSubmitted}>
                 <SelectTrigger className="mx-2 w-32 border rounded-md p-2">
                     <SelectValue placeholder={option.option} />
@@ -102,7 +102,7 @@ export function FillInTheBlankQuestion({question, studentAnswer, questionSubmitt
 
     return (
         <QuestionCard title={question.question} description={question.description} isCorrect={questionSubmitted ? answer === studentQuestionAnswer : undefined}>
-            <div className="flex">{output}</div>
+            <div className="inline-flex flex-wrap max-w-full">{output}</div>
             {questionSubmitted && (
                 <QuestionAnswerSection answer={answer} studentAnswer={studentQuestionAnswer}/>
             )}
